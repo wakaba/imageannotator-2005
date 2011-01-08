@@ -1,0 +1,150 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<title>Album</title>
+<style type="text/css">
+  ul {
+    position: absolute;
+    right: 0;
+    width: 10em;
+    bottom: 0;
+    top: 0;
+    overflow: auto;
+    margin: 0;
+    padding: 0;
+  }
+  li {
+    margin-left: 0;
+    padding-left: 0;
+    list-style-type: none;
+  }
+  a img {
+    width: 8em;
+    height: 5em;
+  }
+  #preview {
+    position: absolute;
+    left: 0;
+    top: 0;
+    bottom: 0;
+    right: 10em;
+    text-align: center;
+  }
+  #preview img {
+    width: 80%;
+    height: 80%;
+  }
+  button {
+    font-weight: bolder;
+    width: 2em;
+    height: 2em;
+  }
+  #previewImageContainer {
+    position: relative;
+  }
+  .imageAnnotation {
+    position: absolute;
+    font-weight: bold;
+  }
+  .annotationEditor {
+    position: absolute;
+  }
+  .annotationEditor p {
+    margin: 0;
+    padding: 0;
+    text-align: left;
+  }
+  .annotationEditor input.text {
+    background-color: transparent;
+    width: 20em;
+    border-width: 0;
+  }
+  .colorList {
+    width: 9em;
+    float: left;
+  }
+  .colorList input {
+    width: 1em;
+  }
+  .sizeList input {
+    vertical-align: top;
+    background-color: white;
+  }
+</style>
+<script src="comments.js"></script>
+<script type="text/javascript">
+window.onload = function () {
+  var preview = document.getElementById ('preview');
+  preview.style.display = 'block';
+  var previewImage = document.getElementById ('previewImage');
+  var images = document.images;
+  var imagesLength = images.length - 1;
+  for (var i = 0; i < imagesLength; i++) {
+    var image = images[i];
+    image.parentNode.onclick = (function (i) { return function () {
+      showImage (i);
+      return false;
+    } }) (i); // onclick
+  }
+  document.getElementById ('allNumber').firstChild.data = imagesLength;
+  document.imageAnnotator
+      = new ImageAnnotator (document.getElementById ('previewImageContainer'));
+  showImage (0);
+}; // onload
+
+window.onresize = function () {
+  if (document.currentAnnotationEditor) {
+    document.currentAnnotationEditor.close ();
+    document.currentAnnotationEditor = null;
+  }
+  document.imageAnnotator.redraw ();
+}; // onresize
+
+function showImage (i) {
+  var imagesLength = document.images.length - 1;
+  i = (i + imagesLength) % imagesLength;
+  document.currentImageIndex = i;
+  var src = document.images[i].parentNode.href;
+  document.getElementById ('previewImage').src = src;
+  document.getElementById ('currentNumber').firstChild.data = i + 1;
+ 
+  document.imageAnnotator.dummyImage.src = src;
+  document.imageAnnotator.dummyImage.onload = function () {
+    if (document.currentAnnotationEditor) {
+      document.currentAnnotationEditor.close ();
+      document.currentAnnotationEditor = null;
+    }
+    document.imageAnnotator.clearData ();
+    document.imageAnnotator.loadData ([]);
+  };
+} // showImage
+
+function prevImage () {
+  showImage (document.currentImageIndex - 1);
+} // prevImage
+
+function nextImage () {
+  showImage (document.currentImageIndex + 1);
+} // nextImage
+
+function thisImage () {
+  location.href = document.getElementById ('previewImage').src;
+} // thisImage
+</script>
+</head>
+<body>
+<ul>
+<li><a href="a.jpg"><img src="small/a.jpg"></a></li><li><a href="b.jpg"><img src="small/b.jpg"></a></li></ul>
+<div id="preview" style="display: none">
+<div id="previewImageContainer"><img id="previewImage"></div>
+<div class="controler">
+<button type="button" onclick="prevImage ()" accesskey="p">&lt;</button>
+<button type="button" onclick="thisImage ()">@</button>
+<button type="button" onclick="nextImage ()" accesskey="n">&gt;</button>
+</div>
+<div class="info">
+<span id="currentNumber">0</span> / <span id="allNumber">0</span>
+</div>
+</div>
+</body>
+</html>
